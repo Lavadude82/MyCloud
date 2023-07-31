@@ -3,7 +3,7 @@ const config = {
     port:5051,
 
     //Password - set null for none
-    password:null,
+    password:"Test123",
 
 }
 module.exports = {config}
