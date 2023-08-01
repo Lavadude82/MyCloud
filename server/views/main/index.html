@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Cloud</title>
+    <link rel="shortcut icon" href="/favicon" type="image/x-icon" />
+    <style>
+      * {
+        user-select: none;
+      }
+      body {
+        position: fixed;
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .root {
+        position: relative;
+        width: 60%;
+        min-width: 300px;
+        max-width: 500px;
+        height: 300px;
+        background-color: rgb(240, 240, 240);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-family: sans-serif;
+      }
+      .root h3 {
+        margin: 3px;
+      }
+      .root img {
+        position: absolute;
+        top: 15px;
+      }
+      .root input {
+        border: none;
+        background-color: rgb(200, 200, 200);
+        padding: 5px;
+        border-radius: 5px;
+      }
+      hr {
+        color: rgb(75, 75, 75);
+      }
+      #lbtn {
+        position: absolute;
+        bottom: 40px;
+        border-radius: 10px;
+        border: none;
+        background-color: rgb(75, 75, 75);
+        font-family: sans-serif;
+        font-size: 18px;
+        padding: 10px;
+        color: white;
+      }
+      @media screen and (max-width: 325px) {
+        body {
+          background-color: rgb(240, 240, 240);
+        }
+      }
+      #errb {
+        position: absolute;
+        top: 5px;
+        margin: 0px;
+        padding: 10px;
+        background-color: red;
+        border-radius: 1000px;
+        font-size: 18px;
+        color: white;
+        font-family: sans-serif;
+        text-align: center;
+        transition: filter 200ms;
+
+      }
+      #rmd{
+        position: absolute;
+bottom:0px;
+background-color: red;
+border-radius: 10px;
+border:none;
+padding:8px;
+color: white;
+font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="rmd" style="display: none;">Remove Login</button>
+    <p id="errb" style="filter: opacity(0%);">Error Bubble</p>
+    <div class="root">
+      <img src="/icon" height="90" draggable="false" />
+      <h3>Password</h3>
+      <input type="password" id="password" />
+      <button id="lbtn">Login</button>
+    </div>
+  </body>
+  <script>
+    function getLocal(key,value){
+        if(localStorage.getItem(key) == null){
+            localStorage.setItem(key,value)
+            return value;
+        }else{
+            return localStorage.getItem(key)
+        }
+    } 
+    if(getLocal("password","") == ""){
+document.getElementById("password").value = ""
+    }else{
+        document.getElementById("password").value = atob(getLocal("password",""))
+        document.getElementById("rmd").style.display = "block"
+    }
+     
+    function err(value, time) {
+      let dom = document.getElementById("errb");
+      dom.textContent = value
+      dom.style.filter = "opacity(100%)"
+      setTimeout(()=>{
+        dom.style.filter = "opacity(0%)"
+      },time)
+    } document.getElementById("rmd").onclick = (e)=>{
+        localStorage.setItem("password","")
+        location.reload()
+    }
+    document.getElementById("lbtn").onclick = (e) => {
+      fetch("/api/login", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pw: btoa(document.getElementById("password").value) }),
+      })
+        .then((dat) => dat.json())
+        .then((json) => {
+          if (json.correct) {
+            localStorage.setItem("password",btoa(document.getElementById("password").value))
+            location.href = "/home"
+          } else {
+            err("Password Incorrect!",1000*5)
+          }
+        });
+    };
+  </script>
+</html>
